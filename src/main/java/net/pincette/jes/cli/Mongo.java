@@ -6,9 +6,9 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 
 @Command(
-    name = "topics",
+    name = "mongo",
     version = VERSION,
     mixinStandardHelpOptions = true,
-    subcommands = {ConsumeTopic.class, HelpCommand.class, ProduceTopic.class},
-    description = "Commands to work with JSON Kafka topics.")
-class Topics {}
+    subcommands = {HelpCommand.class, QueryCollection.class, StreamMongo.class},
+    description = "Commands to work with MongoDB collections.")
+class Mongo {}

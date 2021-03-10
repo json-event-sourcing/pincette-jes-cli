@@ -24,19 +24,19 @@ import picocli.CommandLine.Option;
     mixinStandardHelpOptions = true,
     subcommands = {HelpCommand.class},
     description =
-        "Reconstructs an aggregate instance from its event log and writes it to the terminal")
+        "Reconstructs an aggregate instance from its event log and writes it to the terminal.")
 class Reconstruct extends AggregateCommand implements Runnable {
   @Option(
       names = {"-i", "--id"},
       required = true,
-      description = "The identifier of an aggregate instance")
+      description = "The identifier of an aggregate instance.")
   String id;
 
   @Option(
       names = {"-u", "--until"},
       description =
           "A MongoDB query, which stops the reconstruction when the intermediate result"
-              + " matches it")
+              + " matches it.")
   private String query;
 
   @SuppressWarnings("java:S106") // Not logging.

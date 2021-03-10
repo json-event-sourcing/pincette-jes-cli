@@ -10,10 +10,10 @@ import picocli.CommandLine.HelpCommand;
 @Command(
     mixinStandardHelpOptions = true,
     version = VERSION,
-    subcommands = {Commands.class, Events.class, HelpCommand.class, Topics.class},
+    subcommands = {Commands.class, Events.class, HelpCommand.class, Mongo.class, Topics.class},
     description = "The command line for JSON Event Sourcing")
 public class Application {
-  static final String VERSION = "1.0";
+  static final String VERSION = "1.1";
 
   private Application() {}
 

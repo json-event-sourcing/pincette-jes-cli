@@ -10,5 +10,5 @@ import picocli.CommandLine.HelpCommand;
     version = VERSION,
     mixinStandardHelpOptions = true,
     subcommands = {HelpCommand.class, SendCommand.class},
-    description = "Commands to work with JSON Event Sourcing commands")
+    description = "Commands to work with JSON Event Sourcing commands.")
 class Commands {}
