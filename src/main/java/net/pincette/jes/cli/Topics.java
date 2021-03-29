@@ -9,6 +9,17 @@ import picocli.CommandLine.HelpCommand;
     name = "topics",
     version = VERSION,
     mixinStandardHelpOptions = true,
-    subcommands = {ConsumeTopic.class, HelpCommand.class, ProduceTopic.class},
+    subcommands = {
+      AlterTopic.class,
+      ConsumeTopic.class,
+      ConsumerGroups.class,
+      CreateTopic.class,
+      DeleteTopic.class,
+      DescribeTopic.class,
+      HelpCommand.class,
+      ListTopics.class,
+      MessageLag.class,
+      ProduceTopic.class
+    },
     description = "Commands to work with JSON Kafka topics.")
 class Topics {}
