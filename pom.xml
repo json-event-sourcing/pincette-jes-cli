@@ -6,7 +6,7 @@
 
   <groupId>net.pincette</groupId>
   <artifactId>pincette-jes-cli</artifactId>
-  <version>1.2</version>
+  <version>1.2.1</version>
   <name>pincette-jes-cli</name>
   <description>Command line tool for JSON Event Sourcing</description>
   <url>https://github.com/wdonne/pincette-jes-cli</url>
@@ -51,7 +51,7 @@
     <dependency>
       <groupId>net.pincette</groupId>
       <artifactId>pincette-common</artifactId>
-      <version>1.7.9</version>
+      <version>1.8</version>
     </dependency>
     <dependency>
       <groupId>net.pincette</groupId>
@@ -61,17 +61,17 @@
     <dependency>
       <groupId>net.pincette</groupId>
       <artifactId>pincette-jes-util</artifactId>
-      <version>1.4</version>
+      <version>1.4.1</version>
     </dependency>
     <dependency>
       <groupId>net.pincette</groupId>
       <artifactId>pincette-rs</artifactId>
-      <version>1.6</version>
+      <version>1.6.1</version>
     </dependency>
     <dependency>
       <groupId>net.pincette</groupId>
       <artifactId>pincette-mongo</artifactId>
-      <version>2.1.4</version>
+      <version>2.1.5</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish</groupId>

@@ -1,5 +1,6 @@
 package net.pincette.jes.cli;
 
+import static java.lang.System.exit;
 import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
@@ -12,6 +13,7 @@ import static net.pincette.rs.Chain.with;
 import static net.pincette.util.Collections.list;
 import static net.pincette.util.Collections.map;
 import static net.pincette.util.Pair.pair;
+import static net.pincette.util.Util.getStackTrace;
 import static net.pincette.util.Util.must;
 import static net.pincette.util.Util.tryToDoRethrow;
 import static net.pincette.util.Util.tryToGetWithSilent;
@@ -89,6 +91,10 @@ class Util {
               System.out.println();
               System.out.flush();
               end.complete(true);
+            },
+            e -> {
+              System.out.println(getStackTrace(e));
+              exit(1);
             }));
 
     end.join();

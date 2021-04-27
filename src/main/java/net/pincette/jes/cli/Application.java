@@ -22,7 +22,7 @@ import picocli.CommandLine.HelpCommand;
     subcommands = {Commands.class, Events.class, HelpCommand.class, Mongo.class, Topics.class},
     description = "The command line for JSON Event Sourcing")
 public class Application {
-  static final String VERSION = "1.2";
+  static final String VERSION = "1.2.1";
 
   private Application() {}
 
