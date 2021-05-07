@@ -5,17 +5,24 @@ import static java.time.Duration.ofSeconds;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.randomUUID;
 import static net.pincette.jes.cli.Application.VERSION;
+import static net.pincette.json.JsonUtil.createReader;
 import static net.pincette.util.Collections.set;
+import static net.pincette.util.Or.tryWith;
 import static net.pincette.util.StreamUtil.stream;
 import static net.pincette.util.Util.doForever;
 import static net.pincette.util.Util.tryToDoWithRethrow;
+import static net.pincette.util.Util.tryToGetRethrow;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Predicate;
 import javax.json.JsonObject;
+import javax.json.JsonStructure;
 import javax.json.JsonValue;
 import net.pincette.jes.util.JsonDeserializer;
 import net.pincette.json.JsonUtil;
@@ -36,7 +43,9 @@ import picocli.CommandLine.Option;
 class ConsumeTopic extends TopicCommand implements Runnable {
   @Option(
       names = {"-f", "--filter"},
-      description = "A MongoDB expression to filter out objects.")
+      description =
+          "A MongoDB expression to filter out objects. It can be a file or a JSON "
+              + "string without spaces.")
   private String filter;
 
   @Option(
@@ -47,8 +56,8 @@ class ConsumeTopic extends TopicCommand implements Runnable {
   private String groupId;
 
   private static void print(
-      final ConsumerRecord<String, JsonObject> record, final PrintWriter writer) {
-    writer.println(record.value());
+      final ConsumerRecord<String, JsonObject> rec, final PrintWriter writer) {
+    writer.println(rec.value());
     writer.flush();
   }
 
@@ -66,11 +75,25 @@ class ConsumeTopic extends TopicCommand implements Runnable {
           doForever(
               () ->
                   stream(consumer.poll(ofSeconds(1)).iterator())
-                      .filter(record -> filter.test(record.value()))
-                      .forEach(record -> print(record, writer)));
+                      .filter(rec -> filter.test(rec.value()))
+                      .forEach(rec -> print(rec, writer)));
         });
 
     return true;
+  }
+
+  private Optional<JsonStructure> readFilter() {
+    return tryWith(
+            () ->
+                ofNullable(filter)
+                    .filter(f -> new File(f).exists())
+                    .map(
+                        f ->
+                            createReader(tryToGetRethrow(() -> new FileInputStream(f)).orElse(null))
+                                .read())
+                    .orElse(null))
+        .or(() -> ofNullable(filter).flatMap(JsonUtil::from).orElse(null))
+        .get();
   }
 
   @SuppressWarnings("java:S106") // Not logging.
@@ -80,8 +103,7 @@ class ConsumeTopic extends TopicCommand implements Runnable {
             consume(
                 properties,
                 System.out,
-                ofNullable(filter)
-                    .flatMap(JsonUtil::from)
+                readFilter()
                     .filter(JsonUtil::isObject)
                     .map(JsonValue::asJsonObject)
                     .map(Match::predicate)

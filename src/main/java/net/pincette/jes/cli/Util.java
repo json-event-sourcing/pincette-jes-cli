@@ -9,6 +9,7 @@ import static net.pincette.jes.util.JsonFields.ID;
 import static net.pincette.jes.util.Kafka.createReliableProducer;
 import static net.pincette.jes.util.Kafka.send;
 import static net.pincette.jes.util.Kafka.wrap;
+import static net.pincette.json.JsonUtil.createReader;
 import static net.pincette.rs.Chain.with;
 import static net.pincette.util.Collections.list;
 import static net.pincette.util.Collections.map;
@@ -16,6 +17,7 @@ import static net.pincette.util.Pair.pair;
 import static net.pincette.util.Util.getStackTrace;
 import static net.pincette.util.Util.must;
 import static net.pincette.util.Util.tryToDoRethrow;
+import static net.pincette.util.Util.tryToGetRethrow;
 import static net.pincette.util.Util.tryToGetWithSilent;
 import static org.apache.kafka.clients.admin.Admin.create;
 import static org.apache.kafka.clients.admin.AlterConfigOp.OpType.SET;
@@ -98,6 +100,10 @@ class Util {
             }));
 
     end.join();
+  }
+
+  static JsonObject readObject(final File file) {
+    return tryToGetRethrow(() -> createReader(new FileInputStream(file)).readObject()).orElse(null);
   }
 
   static CompletionStage<Boolean> sendJson(
