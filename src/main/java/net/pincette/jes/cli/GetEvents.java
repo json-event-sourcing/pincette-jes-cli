@@ -7,6 +7,7 @@ import static net.pincette.jes.cli.Util.toArray;
 import static net.pincette.jes.util.Mongo.events;
 import static net.pincette.util.Util.tryToDoWithRethrow;
 
+import net.pincette.jes.util.Mongo.DbContext;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Option;
@@ -30,6 +31,12 @@ class GetEvents extends AggregateCommand implements Runnable {
     tryToDoWithRethrow(
         () -> create(mongoUrl),
         client ->
-            print(toArray(events(id, aggregate, environment, client.getDatabase(mongoDatabase)))));
+            print(
+                toArray(
+                    events(
+                        id,
+                        aggregate,
+                        environment,
+                        new DbContext(client.getDatabase(mongoDatabase), null)))));
   }
 }

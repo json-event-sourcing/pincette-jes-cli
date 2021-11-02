@@ -12,6 +12,7 @@ import static net.pincette.util.Util.tryToDoWithRethrow;
 import java.util.function.Predicate;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+import net.pincette.jes.util.Mongo.DbContext;
 import net.pincette.json.JsonUtil;
 import net.pincette.mongo.Match;
 import picocli.CommandLine.Command;
@@ -54,7 +55,11 @@ class Reconstruct extends AggregateCommand implements Runnable {
         client ->
             print(
                 with(reconstructionPublisher(
-                        events(id, aggregate, environment, client.getDatabase(mongoDatabase))))
+                        events(
+                            id,
+                            aggregate,
+                            environment,
+                            new DbContext(client.getDatabase(mongoDatabase), null))))
                     .until(predicate)
                     .last()
                     .map(JsonUtil::string)

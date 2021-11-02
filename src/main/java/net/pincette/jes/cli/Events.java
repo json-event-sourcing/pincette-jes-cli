@@ -9,6 +9,12 @@ import picocli.CommandLine.HelpCommand;
     name = "events",
     version = VERSION,
     mixinStandardHelpOptions = true,
-    subcommands = {GenerateEvent.class, GetEvents.class, HelpCommand.class, Reconstruct.class},
+    subcommands = {
+      GenerateEvent.class,
+      GetEvents.class,
+      HelpCommand.class,
+      Reconstruct.class,
+      UpgradeEvents.class
+    },
     description = "Commands to work with JSON Event Sourcing event logs.")
 class Events {}

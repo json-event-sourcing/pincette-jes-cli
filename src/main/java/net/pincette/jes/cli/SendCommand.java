@@ -12,6 +12,7 @@ import static net.pincette.jes.util.JsonFields.SUB;
 import static net.pincette.jes.util.JsonFields.TYPE;
 import static net.pincette.json.Jslt.reader;
 import static net.pincette.json.Jslt.transformerObject;
+import static net.pincette.json.JsltCustom.customFunctions;
 import static net.pincette.json.JsonUtil.createObjectBuilder;
 import static net.pincette.mongo.JsonClient.findPublisher;
 import static net.pincette.rs.Chain.with;
@@ -78,6 +79,7 @@ class SendCommand extends AggregateCommand implements Runnable {
     final UnaryOperator<JsonObject> transformer =
         transformerObject(
             new Context(reader(jslt))
+                .withFunctions(customFunctions())
                 .withResolver(
                     new FileSystemResourceResolver(jslt.getAbsoluteFile().getParentFile())));
 
@@ -101,10 +103,6 @@ class SendCommand extends AggregateCommand implements Runnable {
       final KafkaProducer<String, JsonObject> producer,
       final UnaryOperator<JsonObject> transformer) {
     return sendJson(producer, topic(aggregate), command(aggregate, transformer));
-  }
-
-  private String suffix() {
-    return environment != null ? ("-" + environment) : "";
   }
 
   private String topic(final JsonObject aggregate) {

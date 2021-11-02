@@ -20,9 +20,9 @@ import picocli.CommandLine.HelpCommand;
     mixinStandardHelpOptions = true,
     version = VERSION,
     subcommands = {Commands.class, Events.class, HelpCommand.class, Mongo.class, Topics.class},
-    description = "The command line for JSON Event Sourcing")
+    description = "The command-line for JSON Event Sourcing.")
 public class Application {
-  static final String VERSION = "1.3";
+  static final String VERSION = "2.0";
 
   private Application() {}
 

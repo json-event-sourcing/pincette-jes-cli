@@ -14,4 +14,8 @@ class AggregateCommand extends MongoCommand {
       description =
           "The name of the environment, which is appended as a suffix to the MongoDB collection.")
   String environment;
+
+  protected String suffix() {
+    return environment != null ? ("-" + environment) : "";
+  }
 }
