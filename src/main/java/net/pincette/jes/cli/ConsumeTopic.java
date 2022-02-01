@@ -12,7 +12,7 @@ import static net.pincette.util.Collections.set;
 import static net.pincette.util.Or.tryWith;
 import static net.pincette.util.Pair.pair;
 import static net.pincette.util.StreamUtil.stream;
-import static net.pincette.util.Util.doForever;
+import static net.pincette.util.Util.doUntil;
 import static net.pincette.util.Util.tryToDoWithRethrow;
 import static net.pincette.util.Util.tryToGetRethrow;
 
@@ -23,6 +23,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -65,6 +66,11 @@ class ConsumeTopic extends TopicCommand implements Runnable {
               + "uses the same group.")
   private String groupId;
 
+  @Option(
+      names = {"-s", "--stop"},
+      description = "Stop when the latest offsets have been reached.")
+  private boolean stop;
+
   private static <K, V> Map<TopicPartition, Long> offsets(
       final KafkaConsumer<K, V> consumer,
       final Collection<TopicPartition> partitions,
@@ -101,19 +107,30 @@ class ConsumeTopic extends TopicCommand implements Runnable {
     tryToDoWithRethrow(
         () -> new KafkaConsumer<>(config, new StringDeserializer(), new JsonDeserializer()),
         consumer -> {
-          consumer.subscribe(set(topic));
-          seek(
-              consumer,
-              topic,
-              () ->
-                  doForever(
-                      () ->
-                          stream(consumer.poll(ofSeconds(1)).iterator())
-                              .filter(rec -> filter.test(rec.value()))
-                              .forEach(rec -> print(rec, writer))));
+          if (fromWhere == null || fromWhere.offset == null) {
+            consumer.subscribe(set(topic));
+          }
+
+          seek(consumer, topic, () -> doUntil(() -> consume(consumer, writer, filter)));
         });
 
     return true;
+  }
+
+  private boolean consume(
+      final KafkaConsumer<String, JsonObject> consumer,
+      final PrintWriter writer,
+      final Predicate<JsonObject> filter) {
+    final List<ConsumerRecord<String, JsonObject>> records =
+        stream(consumer.poll(ofSeconds(1)).iterator()).collect(toList());
+
+    if (stop && records.isEmpty()) {
+      return true;
+    }
+
+    records.stream().filter(rec -> filter.test(rec.value())).forEach(rec -> print(rec, writer));
+
+    return false;
   }
 
   private Optional<JsonStructure> readFilter() {
@@ -149,8 +166,13 @@ class ConsumeTopic extends TopicCommand implements Runnable {
     if (fromWhere != null) {
       if (fromWhere.beginning) {
         consumer.seekToBeginning(partitions(consumer, topic));
-      } else {
+      } else if (fromWhere.timestamp != null) {
         offsets(consumer, partitions(consumer, topic), fromWhere.timestamp).forEach(consumer::seek);
+      } else if (fromWhere.offset != null) {
+        final TopicPartition partition = new TopicPartition(topic, fromWhere.offset.partition);
+
+        consumer.assign(set(partition));
+        consumer.seek(partition, fromWhere.offset.off);
       }
     }
 
@@ -163,9 +185,26 @@ class ConsumeTopic extends TopicCommand implements Runnable {
         description = "Start consuming from the beginning of the topic.")
     private boolean beginning;
 
+    @ArgGroup(exclusive = false)
+    private Offset offset;
+
     @Option(
         names = {"-ts", "--timestamp"},
         description = "The UTC timestamp to start consuming from.")
     private Instant timestamp;
+  }
+
+  private static class Offset {
+    @Option(
+        names = {"-p", "--partition"},
+        required = true,
+        description = "The partition to override the offset of.")
+    private int partition;
+
+    @Option(
+        names = {"-o", "--offset"},
+        required = true,
+        description = "The offset to start consuming from.")
+    private long off;
   }
 }
