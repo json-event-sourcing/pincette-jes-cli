@@ -14,6 +14,7 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.concurrent.Flow.Publisher;
 import java.util.function.UnaryOperator;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -22,7 +23,6 @@ import net.pincette.json.Jslt.Context;
 import net.pincette.json.JsonUtil;
 import net.pincette.rs.PassThrough;
 import org.bson.Document;
-import org.reactivestreams.Publisher;
 import picocli.CommandLine.Option;
 
 class MongoAggregation extends MongoCommand {

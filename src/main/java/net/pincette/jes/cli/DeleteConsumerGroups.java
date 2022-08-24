@@ -1,28 +1,35 @@
 package net.pincette.jes.cli;
 
 import static net.pincette.jes.cli.Application.VERSION;
+import static net.pincette.jes.cli.Util.commaSeparated;
 import static net.pincette.jes.cli.Util.loadProperties;
 import static net.pincette.util.Util.tryToDoWithRethrow;
 import static org.apache.kafka.clients.admin.Admin.create;
 
 import java.io.File;
-import java.util.TreeSet;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Option;
 
 @Command(
-    name = "list",
+    name = "delete",
     version = VERSION,
     mixinStandardHelpOptions = true,
     subcommands = {HelpCommand.class},
-    description = "Lists the Kafka topics.")
-class ListTopics implements Runnable {
+    description = "Deletes the Kafka consumer groups.")
+class DeleteConsumerGroups implements Runnable {
   @Option(
       names = {"-c", "--config-file"},
       required = true,
       description = "A Kafka configuration file.")
   private File config;
+
+  @Option(
+      names = {"-g", "--groups"},
+      required = true,
+      description =
+          "Deletes the given consumer groups. This is a comma-separated list of group IDs.")
+  private String groups;
 
   @SuppressWarnings("java:S106") // Not logging.
   public void run() {
@@ -30,12 +37,10 @@ class ListTopics implements Runnable {
         () -> create(loadProperties(config)),
         admin ->
             admin
-                .listTopics()
-                .names()
+                .deleteConsumerGroups(commaSeparated(groups))
+                .all()
                 .toCompletionStage()
-                .thenApply(TreeSet::new)
                 .toCompletableFuture()
-                .join()
-                .forEach(System.out::println));
+                .join());
   }
 }

@@ -5,10 +5,10 @@ import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static net.pincette.jes.util.JsonFields.ID;
+import static java.util.stream.Collectors.toSet;
+import static net.pincette.jes.JsonFields.ID;
 import static net.pincette.jes.util.Kafka.createReliableProducer;
 import static net.pincette.jes.util.Kafka.send;
-import static net.pincette.jes.util.Kafka.wrap;
 import static net.pincette.json.JsonUtil.createReader;
 import static net.pincette.rs.Chain.with;
 import static net.pincette.util.Collections.list;
@@ -29,11 +29,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Flow.Publisher;
 import javax.json.JsonObject;
-import net.pincette.jes.util.JsonSerializer;
 import net.pincette.json.JsonUtil;
+import net.pincette.kafka.json.JsonSerializer;
 import net.pincette.rs.LambdaSubscriber;
 import org.apache.kafka.clients.admin.Admin;
 import org.apache.kafka.clients.admin.AlterConfigOp;
@@ -42,17 +44,21 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.reactivestreams.Publisher;
 
 class Util {
   private Util() {}
 
   static void alterTopic(final String topic, final String assignments, final Admin admin) {
-    wrap(admin
-            .incrementalAlterConfigs(map(pair(new ConfigResource(TOPIC, topic), ops(assignments))))
-            .all())
+    admin
+        .incrementalAlterConfigs(map(pair(new ConfigResource(TOPIC, topic), ops(assignments))))
+        .all()
+        .toCompletionStage()
         .toCompletableFuture()
         .join();
+  }
+
+  static Set<String> commaSeparated(final String value) {
+    return stream(value.split(",")).map(String::trim).collect(toSet());
   }
 
   static Map<String, Object> fromProperties(final Properties properties) {
@@ -124,7 +130,7 @@ class Util {
             admin ->
                 admin
                     .describeTopics(list(topic))
-                    .all()
+                    .allTopicNames()
                     .thenApply(topics -> !topics.isEmpty())
                     .get())
         .orElse(false);

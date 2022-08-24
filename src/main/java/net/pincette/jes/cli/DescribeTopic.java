@@ -67,7 +67,7 @@ class DescribeTopic extends TopicCommand implements Runnable {
   private Collection<TopicPartitionInfo> getPartitions(final Admin admin) {
     return admin
         .describeTopics(set(topic))
-        .all()
+        .allTopicNames()
         .thenApply(
             t ->
                 t.values().stream()

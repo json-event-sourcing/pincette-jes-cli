@@ -2,7 +2,6 @@ package net.pincette.jes.cli;
 
 import static net.pincette.jes.cli.Application.VERSION;
 import static net.pincette.jes.cli.Util.alterTopic;
-import static net.pincette.jes.util.Kafka.wrap;
 import static net.pincette.util.Collections.set;
 
 import java.util.Optional;
@@ -36,14 +35,15 @@ class CreateTopic extends TopicCommand implements Runnable {
   public void run() {
     runWithAdmin(
         admin -> {
-          wrap(admin
-                  .createTopics(
-                      set(
-                          new NewTopic(
-                              topic,
-                              Optional.of(partitions).filter(p -> p != -1),
-                              Optional.of(replicationFactor).filter(r -> r != -1))))
-                  .all())
+          admin
+              .createTopics(
+                  set(
+                      new NewTopic(
+                          topic,
+                          Optional.of(partitions).filter(p -> p != -1),
+                          Optional.of(replicationFactor).filter(r -> r != -1))))
+              .all()
+              .toCompletionStage()
               .toCompletableFuture()
               .join();
 
