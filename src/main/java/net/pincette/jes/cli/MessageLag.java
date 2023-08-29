@@ -4,11 +4,13 @@ import static net.pincette.jes.cli.Application.VERSION;
 import static net.pincette.jes.cli.Util.commaSeparated;
 import static net.pincette.jes.cli.Util.loadProperties;
 import static net.pincette.jes.util.Kafka.messageLag;
+import static net.pincette.util.Util.isUUID;
 import static net.pincette.util.Util.tryToDoWithRethrow;
 import static org.apache.kafka.clients.admin.Admin.create;
 
 import java.io.File;
 import java.util.Set;
+import java.util.function.Predicate;
 import net.pincette.jes.util.Kafka;
 import net.pincette.json.JsonUtil;
 import picocli.CommandLine.Command;
@@ -37,15 +39,28 @@ class MessageLag implements Runnable {
               + "list of group IDs.")
   private String groups;
 
+  @Option(
+      names = {"-t", "--topics"},
+      description =
+          "Limits the output to the given topics This is a comma-separated "
+              + "list of topic names.")
+  private String topics;
+
   @SuppressWarnings("java:S106") // Not logging.
   public void run() {
     final Set<String> limited = groups != null ? commaSeparated(groups) : null;
+    final Predicate<String> includeGroup =
+        group ->
+            (limited == null && !isUUID(group)) || (limited != null && limited.contains(group));
+    final Set<String> selectedTopics = topics != null ? commaSeparated(topics) : null;
 
     tryToDoWithRethrow(
         () -> create(loadProperties(config)),
         admin ->
             System.out.println(
-                messageLag(admin, group -> limited == null || limited.contains(group))
+                (selectedTopics != null
+                        ? messageLag(selectedTopics, admin, includeGroup)
+                        : messageLag(admin, includeGroup))
                     .thenApply(Kafka::toJson)
                     .thenApply(JsonUtil::string)
                     .toCompletableFuture()
