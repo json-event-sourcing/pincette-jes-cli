@@ -2,7 +2,6 @@ package net.pincette.jes.cli;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static net.pincette.jes.cli.Application.VERSION;
 import static net.pincette.jes.cli.Util.commaSeparated;
@@ -89,7 +88,7 @@ class ListConsumerGroups implements Runnable {
                         g.stream()
                             .map(ConsumerGroupListing::groupId)
                             .filter(id -> limited == null || limited.contains(id))
-                            .collect(toList()))
+                            .toList())
                 .thenComposeAsync(
                     groupIds -> admin.describeConsumerGroups(groupIds).all().toCompletionStage())
                 .thenApply(

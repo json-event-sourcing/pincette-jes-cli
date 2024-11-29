@@ -3,7 +3,6 @@ package net.pincette.jes.cli;
 import static java.lang.System.exit;
 import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static net.pincette.jes.JsonFields.ID;
@@ -80,7 +79,7 @@ class Util {
         .filter(a -> a.length == 2)
         .map(a -> new ConfigEntry(a[0].trim(), a[1].trim()))
         .map(e -> new AlterConfigOp(e, SET))
-        .collect(toList());
+        .toList();
   }
 
   static KafkaProducer<String, JsonObject> producer(final File config) {

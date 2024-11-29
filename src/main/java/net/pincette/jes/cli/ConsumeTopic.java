@@ -4,7 +4,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.Duration.ofSeconds;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.randomUUID;
-import static java.util.stream.Collectors.toList;
 import static net.pincette.jes.cli.Application.VERSION;
 import static net.pincette.json.JsonUtil.createReader;
 import static net.pincette.util.Collections.map;
@@ -89,7 +88,7 @@ class ConsumeTopic extends TopicCommand implements Runnable {
       consumer.poll(ofSeconds(1));
     }
 
-    return consumer.assignment().stream().filter(p -> p.topic().equals(topic)).collect(toList());
+    return consumer.assignment().stream().filter(p -> p.topic().equals(topic)).toList();
   }
 
   private static void print(
@@ -122,7 +121,7 @@ class ConsumeTopic extends TopicCommand implements Runnable {
       final PrintWriter writer,
       final Predicate<JsonObject> filter) {
     final List<ConsumerRecord<String, JsonObject>> records =
-        stream(consumer.poll(ofSeconds(1)).iterator()).collect(toList());
+        stream(consumer.poll(ofSeconds(1)).iterator()).toList();
 
     if (stop && records.isEmpty()) {
       return true;

@@ -4,7 +4,6 @@ import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static net.pincette.jes.cli.Application.VERSION;
 import static net.pincette.util.Collections.map;
@@ -75,7 +74,7 @@ class DescribeTopic extends TopicCommand implements Runnable {
                         v ->
                             v.partitions().stream()
                                 .sorted(comparing(TopicPartitionInfo::partition)))
-                    .collect(toList()))
+                    .toList())
         .toCompletionStage()
         .toCompletableFuture()
         .join();
@@ -91,7 +90,7 @@ class DescribeTopic extends TopicCommand implements Runnable {
                     .flatMap(v -> v.entries().stream())
                     .map(e -> e.name() + "=" + e.value())
                     .sorted()
-                    .collect(toList()))
+                    .toList())
         .toCompletionStage()
         .toCompletableFuture()
         .join();
