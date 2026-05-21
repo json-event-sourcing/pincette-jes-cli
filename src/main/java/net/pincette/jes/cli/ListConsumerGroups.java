@@ -8,12 +8,13 @@ import static net.pincette.jes.cli.Util.commaSeparated;
 import static net.pincette.jes.cli.Util.loadProperties;
 import static net.pincette.util.Util.tryToDoWithRethrow;
 import static org.apache.kafka.clients.admin.Admin.create;
+import static org.apache.kafka.clients.admin.ListGroupsOptions.forConsumerGroups;
 
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Set;
 import org.apache.kafka.clients.admin.ConsumerGroupDescription;
-import org.apache.kafka.clients.admin.ConsumerGroupListing;
+import org.apache.kafka.clients.admin.GroupListing;
 import org.apache.kafka.common.TopicPartition;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
@@ -46,7 +47,7 @@ class ListConsumerGroups implements Runnable {
 
   private static void print(final ConsumerGroupDescription group, final PrintStream out) {
     out.println("Group ID: " + group.groupId());
-    out.println("State: " + group.state());
+    out.println("State: " + group.groupState());
     out.println("Members:");
     group
         .members()
@@ -80,13 +81,13 @@ class ListConsumerGroups implements Runnable {
         () -> create(loadProperties(config)),
         admin ->
             admin
-                .listConsumerGroups()
+                .listGroups(forConsumerGroups())
                 .all()
                 .toCompletionStage()
                 .thenApply(
                     g ->
                         g.stream()
-                            .map(ConsumerGroupListing::groupId)
+                            .map(GroupListing::groupId)
                             .filter(id -> limited == null || limited.contains(id))
                             .toList())
                 .thenComposeAsync(

@@ -13,8 +13,7 @@ import picocli.CommandLine.HelpCommand;
       GenerateEvent.class,
       GetEvents.class,
       HelpCommand.class,
-      Reconstruct.class,
-      UpgradeEvents.class
+      Reconstruct.class
     },
-    description = "Commands to work with JSON Event Sourcing event logs.")
+    description = "Commands to work with JSON Streams event logs.")
 class Events {}

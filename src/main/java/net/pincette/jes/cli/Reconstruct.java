@@ -25,7 +25,10 @@ import picocli.CommandLine.Option;
     mixinStandardHelpOptions = true,
     subcommands = {HelpCommand.class},
     description =
-        "Reconstructs an aggregate instance from its event log and writes it to the terminal.")
+        """
+        Reconstructs an aggregate instance from its event log and writes it to the terminal.
+        This only works if you save all events in a collection called <type>-event.
+        """)
 class Reconstruct extends AggregateCommand implements Runnable {
   @Option(
       names = {"-i", "--id"},

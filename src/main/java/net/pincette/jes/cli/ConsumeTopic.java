@@ -61,8 +61,10 @@ class ConsumeTopic extends TopicCommand implements Runnable {
   @Option(
       names = {"-g", "--group-id"},
       description =
-          "The Kafka consumer group. Note that this may interfere with a service that "
-              + "uses the same group.")
+          """
+          The Kafka consumer group. Note that this may interfere with
+          a service that uses the same group.
+          """)
   private String groupId;
 
   @Option(
@@ -140,9 +142,8 @@ class ConsumeTopic extends TopicCommand implements Runnable {
                     .map(
                         f ->
                             createReader(tryToGetRethrow(() -> new FileInputStream(f)).orElse(null))
-                                .read())
-                    .orElse(null))
-        .or(() -> ofNullable(filter).flatMap(JsonUtil::from).orElse(null))
+                                .read()))
+        .or(() -> ofNullable(filter).flatMap(JsonUtil::from))
         .get();
   }
 

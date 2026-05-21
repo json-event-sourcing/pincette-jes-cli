@@ -11,6 +11,7 @@ import static net.pincette.util.Collections.set;
 import static net.pincette.util.Pair.pair;
 import static net.pincette.util.StreamUtil.composeAsyncStream;
 import static net.pincette.util.Triple.triple;
+import static org.apache.kafka.clients.admin.ListGroupsOptions.forConsumerGroups;
 import static org.apache.kafka.common.config.ConfigResource.Type.TOPIC;
 
 import java.util.Collection;
@@ -21,7 +22,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Supplier;
 import net.pincette.util.Pair;
 import org.apache.kafka.clients.admin.Admin;
-import org.apache.kafka.clients.admin.ConsumerGroupListing;
+import org.apache.kafka.clients.admin.GroupListing;
 import org.apache.kafka.clients.admin.ListOffsetsResult.ListOffsetsResultInfo;
 import org.apache.kafka.clients.admin.OffsetSpec;
 import org.apache.kafka.common.Node;
@@ -99,9 +100,9 @@ class DescribeTopic extends TopicCommand implements Runnable {
   private Map<Integer, Map<String, Long>> groupOffsets(
       final Collection<TopicPartitionInfo> partitions, final Admin admin) {
     return admin
-        .listConsumerGroups()
+        .listGroups(forConsumerGroups())
         .valid()
-        .thenApply(c -> c.stream().map(ConsumerGroupListing::groupId))
+        .thenApply(c -> c.stream().map(GroupListing::groupId))
         .toCompletionStage()
         .thenComposeAsync(
             groups ->

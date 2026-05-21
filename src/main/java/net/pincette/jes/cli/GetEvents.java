@@ -18,8 +18,11 @@ import picocli.CommandLine.Option;
     mixinStandardHelpOptions = true,
     subcommands = {HelpCommand.class},
     description =
-        "Gets all the events of an aggregate instance in chronological order and writes them as a "
-            + "JSON array to the terminal.")
+        """
+        Gets all the events of an aggregate instance in chronological order
+        and writes them as a JSON array to the terminal.
+        This only works if you save all events in a collection called <type>-event.
+        """)
 class GetEvents extends AggregateCommand implements Runnable {
   @Option(
       names = {"-i", "--id"},
