@@ -21,7 +21,7 @@ import picocli.CommandLine.HelpCommand;
     },
     description = "The command-line for JSON Event Sourcing.")
 public class Application {
-  static final String VERSION = "3.1.3";
+  static final String VERSION = "3.1.4";
 
   private Application() {}
 

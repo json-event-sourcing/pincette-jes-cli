@@ -35,7 +35,7 @@ class MongoAggregation extends MongoCommand {
       names = {"-col", "--collection"},
       required = true,
       description =
-          "The MongoDB collection that will be queried. Without an an aggregation all "
+          "The MongoDB collection that will be queried. Without an aggregation all "
               + "documents are returned.")
   private String collection;
 
